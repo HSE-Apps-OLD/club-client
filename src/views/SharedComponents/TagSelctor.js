@@ -29,15 +29,17 @@ const TagSelector = ({handleSelect, handleDeselect, defaultValue, value, classNa
         <Option key="Cooking"> Cooking </Option>
         <Option key="Diversity"> Diversity </Option>
         <Option key="Gaming"> Gaming </Option>
+        <Option key="Medicine"> Medicine </Option>
         <Option key="Mentorship"> Mentorship </Option>
         <Option key="Politics"> Politics </Option>
         <Option key="Programming"> Programming </Option>
         <Option key="Recreation">Recreation </Option>
         <Option key="Religion">Religion</Option>
+        <Option key="Service"> Volunteering </Option>
         <Option key="Science">Science</Option>
         <Option key="Theater"> Theater </Option>
         <Option key="Technology"> Technology </Option>
-        <Option key="Volunteering"> Volunteering </Option>
+        
 
     </Select>
     )
