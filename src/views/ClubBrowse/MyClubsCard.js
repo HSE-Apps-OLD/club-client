@@ -38,12 +38,16 @@ const MyClubsCard = ({history}) => {
 
     const getUserClubs = async () => {
         try{
+            console.log("running")
             if(userClubContext){
                 setUserClubs(userClubContext)
             }
 
-            const userClubs = await axios.get(`${process.env.REACT_APP_CLUB_API}/user/clubs`)
-            
+            const msId = auth.user.localAccountId; // Add your string here
+
+            console.log(msId)
+            const userClubs = await axios.post(`${process.env.REACT_APP_CLUB_API}/user/clubs`,{ msId } )
+            console.log(userClubs.data)
             const announcements = {}
 
             await userClubs.data.forEach(async (club) => {
@@ -89,15 +93,22 @@ const MyClubsCard = ({history}) => {
 
     const leaveClub = async (clubURL) => {
         try{
-            const clubRes = await axios.delete(`${process.env.REACT_APP_CLUB_API}/club/${clubURL}/members/`)
+            const msId = auth.user.localAccountId;
+            const clubRes = await axios.delete(`${process.env.REACT_APP_CLUB_API}/club/${clubURL}/members/`, {
+                headers: {
+                    'x-user-id': msId
+                }
+            });
             
+            console.log(clubRes.data)
 
-            const userClubs = await axios.get(`${process.env.REACT_APP_CLUB_API}/user/clubs`)
-            setUserClubs(userClubs.data)
+            // const userClubs = await axios.get(`${process.env.REACT_APP_CLUB_API}/user/clubs`)
+            // setUserClubs(userClubs.data)
 
-            setUserClubContext(userClubs.data)
+            // setUserClubContext(userClubs.data)
 
             message.success('Successfully Left Club', 5)
+            window.location.reload()
 
         } catch(err){
 
@@ -135,7 +146,7 @@ const MyClubsCard = ({history}) => {
         <MakeAnnouncementModal modal={modal} setModal={setModal}/>
 
         {userClubs && 
-        <Card title="My Clubs" bordered={true} extra={ auth.user.role == "teacher" &&[<Link to='/create'>Register Club</Link>]} style={{ width: "100%", margin: "40px 20px ", borderRadius: "20px" }}>
+        <Card title="My Clubs" bordered={true} extra={ auth.user.role == "student" &&[<Link to='/create'>Register Club</Link>]} style={{ width: "100%", margin: "40px 20px ", borderRadius: "20px" }}>
         <List
             itemLayout="horizontal"
             dataSource={userClubs}
@@ -147,7 +158,7 @@ const MyClubsCard = ({history}) => {
             let userLastViewDate;
 
             try{
-                userLastViewDate = club.announcementViewDate[auth.user._id]
+                // userLastViewDate = club.announcementViewDate[auth.user.localAccountId]
             } catch(err){
                 userLastViewDate = 1
             }
@@ -161,8 +172,8 @@ const MyClubsCard = ({history}) => {
                 }
 
 
-            if(club.officers.includes(auth.user._id) || club.sponsors.includes(auth.user._id)){
-                if(club.officers.includes(auth.user._id)){
+            if(club.officers.includes(auth.user.localAccountId) || club.sponsors.includes(auth.user.localAccountId)){
+                if(club.officers.includes(auth.user.localAccountId)){
                     actions = [
                         <Link><Tooltip title="Announcements"><Badge dot={newAnnouncement || false} offset={[-3,1]}><BellOutlined onClick={() => {
                             markRead(club.url)
@@ -175,7 +186,7 @@ const MyClubsCard = ({history}) => {
                     ]
                 } else {
                     actions = [
-                        <Link ><Tooltip title="Make Announcement"><Badge><NotificationOutlined onClick={() => setModal({open: true, club})} style={{color:"rgba(0, 0, 0, 0.45)"}}/></Badge></Tooltip></Link>,
+                        <Tooltip title="Make Announcement"><Badge><NotificationOutlined onClick={() => setModal({open: true, club})} style={{color:"rgba(0, 0, 0, 0.45)"}}/></Badge></Tooltip>,
                         <Link to={`/clubs/${club.url}/settings`}> <Badge dot={club.applicants.length >= 1} offset={[-2,1]}><Tooltip title="Settings"><SettingOutlined style={{color:"rgba(0, 0, 0, 0.45)"}}/></Tooltip> </Badge></Link>,
 
                     ]
@@ -187,16 +198,13 @@ const MyClubsCard = ({history}) => {
               
                 
                 actions = [
-                    <Link><Tooltip title="Announcements"><Badge dot={newAnnouncement || false} offset={[-3,1]}><BellOutlined onClick={() => {
-                        markRead(club.url)
-                        setAModal({open: true, club: club})
-                    }} style={{color:"rgba(0, 0, 0, 0.45)"}}/></Badge></Tooltip></Link>,
+                    // <Link><Tooltip title="Announcements"><Badge dot={newAnnouncement || false} offset={[-3,1]}><BellOutlined onClick={() => {
+                    //     markRead(club.url)
+                    //     setAModal({open: true, club: club})
+                    // }} style={{color:"rgba(0, 0, 0, 0.45)"}}/></Badge></Tooltip></Link>,
                     <Dropdown placement="bottomRight" overlay={
                         <Menu>
-                        <Menu.Item key='sms' onClick={() => changeSMS(club.url)}>
-                             Text Notifications 
-                            <Switch  checked={!club.settings?.smsDisabled?.includes(auth.user._id)} style ={{marginLeft: "15px"}}size="small"></Switch>
-                        </Menu.Item>
+                       
                         <Menu.Item style={{display:"flex", alignItems:"center",justifyContent:"space-between"}} danger onClick={() => leaveClub(club.url)}> 
                           Leave Club
                           <UserDeleteOutlined style={{ marginRight:"0px", fontSize:"13px"}}/>

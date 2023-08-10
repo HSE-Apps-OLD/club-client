@@ -19,6 +19,7 @@ const Navbar = ({testToken}) => {
 
     console.log()
 
+
     const {auth, setAuth} = useContext(AuthContext)
 
     const [modal, setModal] = useState({loading: false, error: null})

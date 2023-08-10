@@ -2,7 +2,7 @@ import React , {useState, useContext, useEffect} from 'react';
 import Navbar from '../util/Navbar'
 import {useParams} from 'react-router-dom'
 import { Row, Col, Typography, PageHeader, Card, Select, Upload, Avatar, Menu, Badge, Button, Input, Divider, message, List, Tooltip, Switch, Popconfirm} from 'antd';
-import { TeamOutlined, HomeOutlined, CloseOutlined, MinusCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined, LinkOutlined, InstagramOutlined, MailOutlined} from '@ant-design/icons';import { UserDeleteOutlined} from '@ant-design/icons';
+import { TeamOutlined, HomeOutlined, CloseOutlined, MinusCircleOutlined, PlusOutlined, UploadOutlined, VideoCameraOutlined, LinkOutlined, InstagramOutlined, MailOutlined, YoutubeOutlined} from '@ant-design/icons';import { UserDeleteOutlined} from '@ant-design/icons';
 import AuthContext from '../contexts/AuthContext'
 import ClubContext from '../util/ClubContext'
 import {motion} from 'framer-motion'
@@ -55,7 +55,8 @@ const ClubSettings = ({history}) => {
                 contact:  {},
                 tags: [],
                 settings:  {},
-                url: ""
+                url: "",
+                youtube: "",
             })  
         }
 
@@ -108,8 +109,9 @@ const ClubSettings = ({history}) => {
     
       const submitClub = async () => {
         try {
+            const msId = auth.user.localAccountId; // Add your string here
+            const clubRes = await axios.post(`${process.env.REACT_APP_CLUB_API}/club/`, { msId, form });
 
-            const clubRes = await axios.post(`${process.env.REACT_APP_CLUB_API}/club/`, form)
 
             setClubContext({...clubContext, [clubRes.data.url] : clubRes.data})
 
@@ -240,6 +242,12 @@ const ClubSettings = ({history}) => {
                                                 <Text strong style={{fontSize: "10px"}}>INSTAGRAM </Text>
                                             </div>
                                             <Input id="instagram" prefix={<InstagramOutlined style={{marginRight: "5px"}} />} onChange={handleContactForm} style={{width: "100%", height: "40px", borderRadius: "5px"}} placeholder="Username" value={form.contact.instagram}></Input>
+                                    </div>
+                                    <div style={{marginBottom: "15px"}}>
+                                            <div style={{marginBottom:"3px"}}>
+                                                <Text strong style={{fontSize: "10px"}}>YOUTUBE </Text>
+                                            </div>
+                                            <Input id="youtube" prefix={<YoutubeOutlined style={{marginRight: "5px"}} />} onChange={handleContactForm} style={{width: "100%", height: "40px", borderRadius: "5px"}} placeholder="Link" value={form.contact.youtube}></Input>
                                     </div>
 
                                     <div style={{marginBottom: "15px"}}>

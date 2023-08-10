@@ -6,11 +6,14 @@ import { Row, Col, Typography, Button, Dropdown, Drawer,Menu, Avatar} from 'antd
 import { UserOutlined, SearchOutlined, LogoutOutlined, MenuOutlined, SettingOutlined, LinkOutlined} from '@ant-design/icons';
 
 
+import axios from 'axios';
 import logo from '../img/hseapps.png'
 import AuthContext from '../contexts/AuthContext'
-
+import { loginRequest } from '../AuthConig';
 import {motion} from 'framer-motion'
+import { useMsal } from "@azure/msal-react";
 const {SubMenu} = Menu
+
 
 const {Title , Text, Paragraph} = Typography
 
@@ -56,7 +59,33 @@ const menu = (
 const Navbar = ({history}) => {
 
   const {auth, setAuth} = useContext(AuthContext)
-
+  const { instance, accounts } = useMsal();
+  console.log(auth)
+  async function signOutClickHandler(instance) {
+    const selectionRes = await axios.post(
+      `${process.env.REACT_APP_CLUB_API}/user`,
+      {
+        user: auth,
+      }
+    );
+    console.log(selectionRes, "SELECTION RES");
+    if (!selectionRes.data.errors) {
+      setAuth((prev) => ({
+        isAuth: true,
+        user: { ...prev.user },
+        loading: false,
+        fetched: true,
+      }));
+    }
+  
+  }
+  
+  function login(){
+    instance.loginPopup(loginRequest).catch(e => {
+           console.log(e+"login error");
+       });
+     }
+     
   return (
     <> 
       <div style={{borderBottom: 'solid 1px rgba(0,0,0,0.1)'}}>
@@ -69,30 +98,26 @@ const Navbar = ({history}) => {
           {auth.isAuth ? 
             <>
               <Text style={{marginRight: "10px", fontSize: "16px"}}>{auth.user.name}</Text>
-                <motion.div style={{marginRight: "10px"}} whileHover={{ scale: 1.03 }}>
-                  <Link to="/settings">
-                    {auth.user.profilePictureURL == "default" ?
-                      <Avatar style={{cursor: "pointer"}} icon={<UserOutlined />} size={35} />
-                    :
-                      <Avatar style={{cursor: "pointer"}}src={auth.user.profilePictureURL} size={35} />
-                    }
-
-                  </Link>
-                </motion.div>
-
+                
+              <Button type="primary" icon={<UserOutlined />} size={'mediun'} onClick={() => signOutClickHandler(instance)
+                  }>
+                    SignOut
+                </Button>
             </>
-          
+            
           
           :
             <>
 
-              <Link to="/login">
-                <Button type="primary" icon={<UserOutlined />} size={'mediun'}>
+              
+                <Button type="primary" icon={<UserOutlined />} size={'mediun'} onClick={() => {
+                    login();
+                  }}>
                     Login
                 </Button>
-              </Link>
+             
             </>
-          }
+            }
         </Col>
         </Row>
   
